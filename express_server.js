@@ -23,6 +23,7 @@ function generateRandomString(num) {
 //set view engine
 app.set("view engine", "ejs")
 
+
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
@@ -45,9 +46,12 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// create new shortened url
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // debug statement to see POST parameters
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  let newID = generateRandomString(6);
+  // add new key-value pair to the urlDatabase
+  urlDatabase[newID] = req.body['longURL'];
+  res.redirect(`/urls/${newID}`);
 });
 
 app.get("/hello", (req, res) => {
