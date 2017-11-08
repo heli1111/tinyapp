@@ -63,6 +63,20 @@ app.get("/u/:shortURL", (req,res) => {
   res.redirect(longURL);
 });
 
+
+// add a route to remove a URL resource
+app.post("/urls/:id/delete", (req,res) => {
+  
+  // delete the url from urlDatabase
+  delete urlDatabase[req.params.id];
+  // redirect to index
+  res.redirect('/urls');
+});
+
+
+
+
+
 app.listen(PORT, () => {
   console.log(`example app listening on port ${PORT}!`);
 });

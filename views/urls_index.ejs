@@ -7,10 +7,17 @@
   <!--list url in a table, create href for short urls-->
   <ul>
     <% for (let url in urls){ %>
-     <li><a href=''><%= url %></a><%= `:  ${urls[url]}` %></li>
+     <li>
+      <a href=''><%= url %></a><%= `:  ${urls[url]}` %>
+      <!-- adding DELETE button using POST method -->
+      <form method="POST" action="/urls/<%= url %>/delete">
+        <input type="submit" value="Delete">
+      </form>
+     </li>
     <% } %>
   </ul>
+  
 
-    <!-- Add your EJS code here -->
+  <!-- adding form element using POST method as DELETE -->
 </body>
 </html>
