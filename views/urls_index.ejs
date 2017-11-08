@@ -1,0 +1,16 @@
+<html lang="en">
+
+<%- include partials/_header %>
+
+<body>
+  
+  <!--list url in a table, create href for short urls-->
+  <ul>
+    <% for (let url in urls){ %>
+     <li><a href=''><%= url %></a><%= `:  ${urls[url]}` %></li>
+    <% } %>
+  </ul>
+
+    <!-- Add your EJS code here -->
+</body>
+</html>
