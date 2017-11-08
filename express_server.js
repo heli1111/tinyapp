@@ -66,7 +66,6 @@ app.get("/u/:shortURL", (req,res) => {
 
 // add a route to remove a URL resource
 app.post("/urls/:id/delete", (req,res) => {
-  
   // delete the url from urlDatabase
   delete urlDatabase[req.params.id];
   // redirect to index
