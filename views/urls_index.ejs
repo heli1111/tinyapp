@@ -1,9 +1,12 @@
 <html lang="en">
 
-<%- include partials/_header %>
+  <head>
+    <title>TinyApp</title>
+  </head>
+
 
 <body>
-  
+  <%- include partials/_header %>
   <!--list url in a table, create href for short urls-->
   <ul>
     <% for (let url in urls){ %>
@@ -15,8 +18,5 @@
     
     <% } %>
   </ul>
-  
-
-  <!-- adding form element using POST method as DELETE -->
 </body>
 </html>

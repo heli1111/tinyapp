@@ -2,7 +2,9 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -27,25 +29,40 @@ app.get("/", (req, res) => {
   res.end("Hello!");
 });
 
+// get username to set cookie
+app.post("/login", (req,res) =>{
+  let username = req.body['username'];
+  // set username cookie
+  res.cookie('username', username);
+  res.redirect('/urls');
+});
+
+// clears cookie and logout
+app.post("/logout", (req,res) =>{
+  res.clearCookie('username');
+  res.redirect('/urls');
+});
+
 // display urls as json object
 app.get("/urls.json",(req,res) =>{
   res.json(urlDatabase);
 });
 
-// renders a page to list urls in a table
+// renders a page to list urls in a table, display username if logged in
 app.get("/urls", (req,res) =>{
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_index", templateVars)
 })
 
 // renders a page to create new url
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { username: req.cookies["username"] };
+  res.render("urls_new", templateVars);
 });
 
 // redners a page to show single short url and its long url
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id, urls: urlDatabase };
+  let templateVars = { shortURL: req.params.id, urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_show", templateVars);
 });
 
@@ -63,7 +80,6 @@ app.get("/u/:shortURL", (req,res) => {
   res.redirect(longURL);
 });
 
-
 // update a URL resource
 app.post("/urls/:id", (req,res) => {
   //update the longURL 
@@ -72,7 +88,6 @@ app.post("/urls/:id", (req,res) => {
   res.redirect('/urls');
 });
 
-
 // to remove a URL resource from the database
 app.post("/urls/:id/delete", (req,res) => {
   // delete the url from urlDatabase
@@ -80,7 +95,6 @@ app.post("/urls/:id/delete", (req,res) => {
   // redirect to index with updated database
   res.redirect('/urls');
 });
-
 
 app.listen(PORT, () => {
   console.log(`example app listening on port ${PORT}!`);

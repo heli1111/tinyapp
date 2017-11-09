@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-  <%- include partials/_header %>
+  <head>
+    <title>TinyApp</title>
+  </head>
+
   <body>
+    <%- include partials/_header %>
     <!--take shortURL and display the full URL-->
     <li><b>ShortURL:</b><a href='/urls/<%= shortURL %>'><%= shortURL %></a></li>
     <!-- add text input and update button-->
