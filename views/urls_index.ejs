@@ -10,7 +10,7 @@
     
       <!-- adding DELETE button using POST method -->
       <form method="POST" action="/urls/<%= url %>/delete">
-        <li> <a href=''><%= url %></a><%= `:  ${urls[url]} ` %><input type="submit" value="Delete"></li>
+        <li> <a href='/urls/<%= url %>/'><%= url %></a><%= `:  ${urls[url]} ` %><input type="submit" value="Delete"></li>
       </form>
     
     <% } %>

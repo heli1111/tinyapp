@@ -3,6 +3,14 @@
   <%- include partials/_header %>
   <body>
     <!--take shortURL and display the full URL-->
-    <li><a href=''><%= shortURL %></a><%= `:  ${urls[shortURL]}`%></li>
+    <li><b>ShortURL:</b><a href='/urls/<%= shortURL %>'><%= shortURL %></a></li>
+    <!-- add text input and update button-->
+    <form method="POST" action="/urls/<%= shortURL %>">
+        <li>
+        <input id="longURL" type="text" name="longURL" value="<%= urls[shortURL] %>" style="width: 200px">
+        <input type="submit" value="update">
+        </li>
+    </form>
+
   </body>
 </html>

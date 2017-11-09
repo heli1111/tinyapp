@@ -64,16 +64,22 @@ app.get("/u/:shortURL", (req,res) => {
 });
 
 
-// add a route to remove a URL resource
-app.post("/urls/:id/delete", (req,res) => {
-  // delete the url from urlDatabase
-  delete urlDatabase[req.params.id];
-  // redirect to index
+// update a URL resource
+app.post("/urls/:id", (req,res) => {
+  //update the longURL 
+  urlDatabase[req.params.id] = req.body['longURL'];
+  // redirect to index with updated database
   res.redirect('/urls');
 });
 
 
-
+// to remove a URL resource from the database
+app.post("/urls/:id/delete", (req,res) => {
+  // delete the url from urlDatabase
+  delete urlDatabase[req.params.id];
+  // redirect to index with updated database
+  res.redirect('/urls');
+});
 
 
 app.listen(PORT, () => {
