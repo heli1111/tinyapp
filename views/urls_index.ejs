@@ -5,13 +5,17 @@
 <body>
   <%- include partials/_header %>
 
-  <% if (user !== undefined) { %>
-  <!-- create new url -->
+  <% if (user === undefined) { %>
+  
+    <h1>Please login/register</h1>
+  
+  <% } else { %>
+  
+    <!-- create new url -->
   <form method="GET" action="/urls/new">
     <input type="submit" value="New">
   </form>
-  <% } %>
-
+  
   <!-- list of all urls -->
   <ul>
     <% for (let shortURL in urls){ %>
@@ -29,5 +33,9 @@
       </li>
     <% } %>
   </ul>
+
+  <% } %>
+
+  
 </body>
 </html>

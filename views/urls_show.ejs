@@ -5,6 +5,12 @@
   </head>
   <body>
     <%- include partials/_header %>
+    <% if (user === undefined) { %>
+      
+        <h1>Please login/register</h1>
+      
+    <% } else { %>
+
     <!--take shortURL and display the full URL-->
     <li><b>ShortURL:</b><a href='/urls/<%= shortURL %>'><%= shortURL %></a></li>
     <!-- add text input and update button-->
@@ -14,5 +20,7 @@
         <input type="submit" value="update">
         </li>
     </form>
+
+    <% } %>
   </body>
 </html>

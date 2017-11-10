@@ -6,7 +6,6 @@ const cookieParser = require("cookie-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-
 const urlDatabase = {
   "b2xVn2": {
     url: "http://www.lighthouselabs.ca",
@@ -37,6 +36,16 @@ function generateRandomString(num) {
   return newID;
 }
 
+function urlsForUser(id) {
+  let urls = {}
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      urls[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return urls;
+}
+
 // set view engine
 app.set("view engine", "ejs")
 
@@ -51,7 +60,6 @@ app.get("/login", (req,res) =>{
   // set user cookie
   res.render('login', templateVars);
 });
-
 
 // get userID to set cookie
 app.post("/login", (req,res) =>{
@@ -124,7 +132,12 @@ app.get("/urls.json",(req,res) =>{
 
 // renders a page to list urls in a table, display userID if logged in
 app.get("/urls", (req,res) =>{
-  let templateVars = { urls: urlDatabase, user: req.cookies["user"] };
+  let user = req.cookies['user'];
+  let urls = {}
+  if (user !== undefined) {
+    urls = urlsForUser(user.id)
+  }
+  let templateVars = { urls: urls, user: user };
   res.render("urls_index", templateVars)
 })
 
@@ -143,7 +156,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   let user = req.cookies['user'];
   let shortURL = req.params.id;
-  if (urlDatabase[shortURL].userID !== user.id) {
+  if (user && urlDatabase[shortURL].userID !== user.id) {
     res.status(403).send("unauthorized");
     return;
   }
