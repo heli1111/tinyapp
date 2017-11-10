@@ -3,27 +3,15 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcrypt');
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
 const urlDatabase = {
-  "b2xVn2": {
-    url: "http://www.lighthouselabs.ca",
-    userID: "user"
-  }
 };
 
-const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
+const users = {
 }
 
 // generateRandomString - generate random alphanumerical string
@@ -72,18 +60,18 @@ app.post("/login", (req,res) =>{
   }
 
   // error handling - verfiy password
-  Object.keys(users).forEach(function(user) {
-    if (email === users[user].email){
-      if (password === users[user].password){
+  for (let user in users) {
+    if (email === users[user].email) {
+      if (bcrypt.compareSync(password, users[user].password)) {
         // set cookie to user
         res.cookie('user', users[user]);
         res.redirect("/urls");
-      } else {
-        res.status(403).send("password don't match!");
+        return;
       }
-    }
-  }); 
-
+      res.status(403).send("password don't match!");
+      return;
+    } 
+  }
   res.status(403).send("email don't exist, please register!");
 });
 
@@ -108,26 +96,38 @@ app.post("/register", (req,res) =>{
   // error handling
   if (email === "" || password === ""){
     res.status(400).send("please enter email and password");
+    return;
   }
 
-  Object.keys(users).forEach(function(user) {
+  for (let user in users) {
     if (email === users[user].email){
-    res.status(400).send("email already exists!");
+      res.status(400).send("email already exists!");
+      return;
     }
-  })
+  }
   
   // generate random userID
   let newID = generateRandomString(6);
-  users[newID] = {id: newID, email:email, password: password};
+  let hashedPassword = bcrypt.hashSync(password, 10);
+  users[newID] = {
+    id: newID, 
+    email:email, 
+    password: hashedPassword
+  };
   // set cookie to newID
   res.cookie('user', users[newID]);
   // redirect to urls
   res.redirect("/urls");
 });
 
-// display urls as json object
+// display urls as json object -> for debugging purposes
 app.get("/urls.json",(req,res) =>{
   res.json(urlDatabase);
+});
+
+// display users as json object -> for debugging purposes
+app.get("/users.json", (req, res) => {
+  res.json(users);
 });
 
 // renders a page to list urls in a table, display userID if logged in
