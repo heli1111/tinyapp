@@ -68,7 +68,7 @@ app.post("/login", (req,res) =>{
     if (email === users[user].email){
       if (password === users[user].password){
         // set cookie to user
-        res.cookie('user', user);
+        res.cookie('user', users[user]);
         res.redirect("/urls");
       } else {
         res.status(403).send("password don't match!");
@@ -112,7 +112,7 @@ app.post("/register", (req,res) =>{
   let newID = generateRandomString(6);
   users[newID] = {id: newID, email:email, password: password};
   // set cookie to newID
-  res.cookie('user', newID);
+  res.cookie('user', users[newID]);
   // redirect to urls
   res.redirect("/urls");
 });
@@ -139,9 +139,14 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// redners a page to show single short url and its long url
+// renders a page to edit url
 app.get("/urls/:id", (req, res) => {
+  let user = req.cookies['user'];
   let shortURL = req.params.id;
+  if (urlDatabase[shortURL].userID !== user.id) {
+    res.status(403).send("unauthorized");
+    return;
+  }
   let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].url, user: req.cookies["user"] };
   res.render("urls_show", templateVars);
 });
@@ -157,7 +162,7 @@ app.post("/urls", (req, res) => {
   // add new key-value pair to the urlDatabase
   urlDatabase[newShortURL] = {
     url: req.body['longURL'],
-    userID: user
+    userID: user.id
   }
   res.redirect(`/urls`);
 });
@@ -170,16 +175,28 @@ app.get("/u/:shortURL", (req,res) => {
 
 // update a URL resource
 app.post("/urls/:id", (req,res) => {
+  let user = req.cookies['user'];
+  let shortURL = req.params.id;
+  if (urlDatabase[shortURL].userID !== user.id) {
+    res.status(403).send("unauthorized");
+    return;
+  }
   // update the longURL 
-  urlDatabase[req.params.id].url = req.body['longURL'];
+  urlDatabase[shortURL].url = req.body['longURL'];
   // redirect to index with updated database
   res.redirect('/urls');
 });
 
 // to remove a URL resource from the database
 app.post("/urls/:id/delete", (req,res) => {
+  let user = req.cookies['user'];
+  let shortURL = req.params.id;
+  if (urlDatabase[shortURL].userID !== user.id) {
+    res.status(403).send("unauthorized");
+    return;
+  }
   // delete the url from urlDatabase
-  delete urlDatabase[req.params.id];
+  delete urlDatabase[shortURL];
   // redirect to index with updated database
   res.redirect('/urls');
 });
