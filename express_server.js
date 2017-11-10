@@ -2,11 +2,14 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  secret: "pa$$w0rd",
+  maxAge: 24 * 60 * 60 * 1000
+}));
 
 const urlDatabase = {
 };
@@ -44,8 +47,7 @@ app.get("/", (req, res) => {
 
 // render login page and set cookie
 app.get("/login", (req,res) =>{
-  let templateVars = { user: req.cookies["user"] };
-  // set user cookie
+  let templateVars = { user: req.session.user_id };
   res.render('login', templateVars);
 });
 
@@ -64,7 +66,7 @@ app.post("/login", (req,res) =>{
     if (email === users[user].email) {
       if (bcrypt.compareSync(password, users[user].password)) {
         // set cookie to user
-        res.cookie('user', users[user]);
+        req.session.user_id = users[user];
         res.redirect("/urls");
         return;
       }
@@ -77,13 +79,13 @@ app.post("/login", (req,res) =>{
 
 // clears cookie and logout
 app.post("/logout", (req,res) =>{
-  res.clearCookie('user');
+  delete req.session['user_id']
   res.redirect('/urls');
 });
 
 // renders a page for user registration
 app.get("/register", (req,res) =>{
-  let templateVars = { user: req.cookies["user"] };
+  let templateVars = { user: req.session.user_id };
   // returns a page with registration form
   res.render("register", templateVars);
 });
@@ -115,7 +117,7 @@ app.post("/register", (req,res) =>{
     password: hashedPassword
   };
   // set cookie to newID
-  res.cookie('user', users[newID]);
+  req.session.user_id = users[newID];
   // redirect to urls
   res.redirect("/urls");
 });
@@ -132,7 +134,7 @@ app.get("/users.json", (req, res) => {
 
 // renders a page to list urls in a table, display userID if logged in
 app.get("/urls", (req,res) =>{
-  let user = req.cookies['user'];
+  let user = req.session.user_id;
   let urls = {}
   if (user !== undefined) {
     urls = urlsForUser(user.id)
@@ -143,7 +145,7 @@ app.get("/urls", (req,res) =>{
 
 // renders a page to create new url
 app.get("/urls/new", (req, res) => {
-  let user = req.cookies['user'];
+  let user = req.session.user_id;
   if (user === undefined) {
     res.redirect("/login");
     return;
@@ -154,7 +156,7 @@ app.get("/urls/new", (req, res) => {
 
 // renders a page to edit url
 app.get("/urls/:id", (req, res) => {
-  let user = req.cookies['user'];
+  let user = req.session.user_id;
   let shortURL = req.params.id;
   if (user && urlDatabase[shortURL].userID !== user.id) {
     res.status(403).send("unauthorized");
@@ -166,7 +168,7 @@ app.get("/urls/:id", (req, res) => {
 
 // create new shortened url
 app.post("/urls", (req, res) => {
-  let user = req.cookies['user'];
+  let user = req.session.user_id;
   if (user === undefined) {
     res.redirect("/login");
     return;
@@ -188,7 +190,7 @@ app.get("/u/:shortURL", (req,res) => {
 
 // update a URL resource
 app.post("/urls/:id", (req,res) => {
-  let user = req.cookies['user'];
+  let user = req.session.user_id;
   let shortURL = req.params.id;
   if (urlDatabase[shortURL].userID !== user.id) {
     res.status(403).send("unauthorized");
@@ -202,7 +204,7 @@ app.post("/urls/:id", (req,res) => {
 
 // to remove a URL resource from the database
 app.post("/urls/:id/delete", (req,res) => {
-  let user = req.cookies['user'];
+  let user = req.session.user_id;
   let shortURL = req.params.id;
   if (urlDatabase[shortURL].userID !== user.id) {
     res.status(403).send("unauthorized");
