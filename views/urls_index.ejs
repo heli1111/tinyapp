@@ -14,16 +14,16 @@
 
   <!-- list of all urls -->
   <ul>
-    <% for (let url in urls){ %>
+    <% for (let shortURL in urls){ %>
       <li style="display:block;">
-        <a href='/urls/<%= url %>/'><%= url %></a> 
-        <%= `:  ${urls[url]} ` %>
+        <a href='/urls/<%= shortURL %>/'><%= shortURL %></a> 
+        <%= `:  ${urls[shortURL].url} ` %>
         <!-- delete url -->
-        <form method="POST" action="/urls/<%= url %>/delete">
+        <form method="POST" action="/urls/<%= shortURL %>/delete">
           <input type="submit" value="Delete">
         </form>
         <!-- edit url -->
-        <form method="GET" action="/urls/<%= url %>">
+        <form method="GET" action="/urls/<%= shortURL %>">
           <input type="submit" value="Edit">
         </form>
       </li>

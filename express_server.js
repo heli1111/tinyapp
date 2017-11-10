@@ -8,7 +8,10 @@ app.use(cookieParser());
 
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca"
+  "b2xVn2": {
+    url: "http://www.lighthouselabs.ca",
+    userID: "user"
+  }
 };
 
 const users = { 
@@ -34,7 +37,7 @@ function generateRandomString(num) {
   return newID;
 }
 
-//set view engine
+// set view engine
 app.set("view engine", "ejs")
 
 // index page
@@ -55,12 +58,12 @@ app.post("/login", (req,res) =>{
   let email = req.body['email'];
   let password = req.body['password'];
 
-  //error handling - verfiy inputs
+  // error handling - verfiy inputs
   if (email === "" || password === ""){
     res.status(403).send("please enter email and password");
   }
 
-  //error handling - verfiy password
+  // error handling - verfiy password
   Object.keys(users).forEach(function(user) {
     if (email === users[user].email){
       if (password === users[user].password){
@@ -74,7 +77,6 @@ app.post("/login", (req,res) =>{
   }); 
 
   res.status(403).send("email don't exist, please register!");
-
 });
 
 // clears cookie and logout
@@ -86,8 +88,8 @@ app.post("/logout", (req,res) =>{
 // renders a page for user registration
 app.get("/register", (req,res) =>{
   let templateVars = { user: req.cookies["user"] };
-  //returns a page with registration form
-  res.render("register",templateVars);
+  // returns a page with registration form
+  res.render("register", templateVars);
 });
 
 app.post("/register", (req,res) =>{
@@ -95,7 +97,7 @@ app.post("/register", (req,res) =>{
   let email = req.body['email'];
   let password = req.body['password'];
   
-  //error handling
+  // error handling
   if (email === "" || password === ""){
     res.status(400).send("please enter email and password");
   }
@@ -106,7 +108,7 @@ app.post("/register", (req,res) =>{
     }
   })
   
-  //generate random userID
+  // generate random userID
   let newID = generateRandomString(6);
   users[newID] = {id: newID, email:email, password: password};
   // set cookie to newID
@@ -114,8 +116,6 @@ app.post("/register", (req,res) =>{
   // redirect to urls
   res.redirect("/urls");
 });
-
-
 
 // display urls as json object
 app.get("/urls.json",(req,res) =>{
@@ -131,7 +131,6 @@ app.get("/urls", (req,res) =>{
 // renders a page to create new url
 app.get("/urls/new", (req, res) => {
   let user = req.cookies['user'];
-  console.log(user);
   if (user === undefined) {
     res.redirect("/login");
     return;
@@ -142,28 +141,37 @@ app.get("/urls/new", (req, res) => {
 
 // redners a page to show single short url and its long url
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id, urls: urlDatabase, user: req.cookies["user"] };
+  let shortURL = req.params.id;
+  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].url, user: req.cookies["user"] };
   res.render("urls_show", templateVars);
 });
 
 // create new shortened url
 app.post("/urls", (req, res) => {
-  let newID = generateRandomString(6);
+  let user = req.cookies['user'];
+  if (user === undefined) {
+    res.redirect("/login");
+    return;
+  }
+  let newShortURL = generateRandomString(6);
   // add new key-value pair to the urlDatabase
-  urlDatabase[newID] = req.body['longURL'];
+  urlDatabase[newShortURL] = {
+    url: req.body['longURL'],
+    userID: user
+  }
   res.redirect(`/urls`);
 });
 
 // redirect short url to long url
 app.get("/u/:shortURL", (req,res) => {
-  let longURL = urlDatabase[req.params.shortURL];
+  let longURL = urlDatabase[req.params.shortURL].url;
   res.redirect(longURL);
 });
 
 // update a URL resource
 app.post("/urls/:id", (req,res) => {
-  //update the longURL 
-  urlDatabase[req.params.id] = req.body['longURL'];
+  // update the longURL 
+  urlDatabase[req.params.id].url = req.body['longURL'];
   // redirect to index with updated database
   res.redirect('/urls');
 });
