@@ -1,19 +1,18 @@
 <header>
 
-  <% if (username == undefined){ %>
-  <form method="POST" action="/login">
-        <li>
-        <input id="username" type="text" name="username" placeholder="username" style="width: 200px">
-        <input type="submit" value="submit">
-        </li>
-  </form>
+  <% if (user == undefined){ %>
+      <form float="left" method="GET" action="/login">
+        <input type="submit" value="login">
+      </form>
+
+      <form float="left" method="GET" action="/register">
+        <input type="submit" value="register">
+      </form>
+
   <% } else {%>
-  
-  <form method="POST" action="/logout">
-  <li>
-  <%= `Hello ${username} !! ` %>  
-  <input type="submit" value="logout">
-  </li>
+    <form method="POST" action="/logout">
+        <%= `Hello ${user} !! ` %><input type="submit" value="logout">
+    </form>
   <% } %>
 
 </header>
