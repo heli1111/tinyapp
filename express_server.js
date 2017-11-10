@@ -7,11 +7,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
 
-let urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+const urlDatabase = {
+  "b2xVn2": "http://www.lighthouselabs.ca"
 };
-
 
 const users = { 
   "userRandomID": {
@@ -43,7 +41,6 @@ app.set("view engine", "ejs")
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
-
 
 // render login page and set cookie
 app.get("/login", (req,res) =>{
@@ -133,7 +130,13 @@ app.get("/urls", (req,res) =>{
 
 // renders a page to create new url
 app.get("/urls/new", (req, res) => {
-  let templateVars = { user: req.cookies["user"] };
+  let user = req.cookies['user'];
+  console.log(user);
+  if (user === undefined) {
+    res.redirect("/login");
+    return;
+  }
+  let templateVars = { user: user };
   res.render("urls_new", templateVars);
 });
 
@@ -148,7 +151,7 @@ app.post("/urls", (req, res) => {
   let newID = generateRandomString(6);
   // add new key-value pair to the urlDatabase
   urlDatabase[newID] = req.body['longURL'];
-  res.redirect(`/urls/${newID}`);
+  res.redirect(`/urls`);
 });
 
 // redirect short url to long url

@@ -1,21 +1,32 @@
 <html lang="en">
-
 <head>
   <title>TinyApp</title>
 </head>
-
-
 <body>
   <%- include partials/_header %>
-  <!--list url in a table, create href for short urls-->
+
+  <% if (user !== undefined) { %>
+  <!-- create new url -->
+  <form method="GET" action="/urls/new">
+    <input type="submit" value="New">
+  </form>
+  <% } %>
+
+  <!-- list of all urls -->
   <ul>
     <% for (let url in urls){ %>
-    
-      <!-- adding DELETE button using POST method -->
-      <form method="POST" action="/urls/<%= url %>/delete">
-        <li> <a href='/urls/<%= url %>/'><%= url %></a><%= `:  ${urls[url]} ` %><input type="submit" value="Delete"></li>
-      </form>
-    
+      <li style="display:block;">
+        <a href='/urls/<%= url %>/'><%= url %></a> 
+        <%= `:  ${urls[url]} ` %>
+        <!-- delete url -->
+        <form method="POST" action="/urls/<%= url %>/delete">
+          <input type="submit" value="Delete">
+        </form>
+        <!-- edit url -->
+        <form method="GET" action="/urls/<%= url %>">
+          <input type="submit" value="Edit">
+        </form>
+      </li>
     <% } %>
   </ul>
 </body>
