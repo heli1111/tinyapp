@@ -7,15 +7,13 @@ const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
-  secret: "pa$$w0rd",
+  secret: generateRandomString(12),
   maxAge: 24 * 60 * 60 * 1000
 }));
 
-const urlDatabase = {
-};
+const urlDatabase = {};
 
-const users = {
-}
+const users = {}
 
 // generateRandomString - generate random alphanumerical string
 function generateRandomString(num) {
@@ -158,11 +156,15 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   let user = req.session.user_id;
   let shortURL = req.params.id;
+  if (urlDatabase[shortURL] === undefined) {
+    res.status(404).send("not found");
+    return;
+  }
   if (user && urlDatabase[shortURL].userID !== user.id) {
     res.status(403).send("unauthorized");
     return;
   }
-  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].url, user: req.cookies["user"] };
+  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].url, user: req.session.user_id };
   res.render("urls_show", templateVars);
 });
 
